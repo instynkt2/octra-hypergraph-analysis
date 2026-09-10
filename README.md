@@ -2,9 +2,26 @@
 
 *A code-grounded research note on a conditional uniqueness result—and what it does not establish.*
 
-**Scope:** an ideal independent-column matrix ensemble at defaults from a pinned public source snapshot. The probability is over the choice of **H**, not over individual encryptions or witnesses. This is not a deployed-matrix certification, a hardness result, or an HFHE security proof.
+**Scope of the original result:** an ideal independent-column matrix ensemble at defaults from a pinned public source snapshot. The probability is over the choice of **H**, not over individual encryptions or witnesses. This is not a deployed-matrix certification, a hardness result, or an HFHE security proof.
 
-[Full derivation](technical_note.md) · [Primary checker](sparse_syndrome_checker.py) · [Second implementation](independent_recheck.py) · [Verification and reproduction](VERIFICATION.md)
+[Original derivation](technical_note.md) · [Follow-up research supplement](FOLLOWUP_RESEARCH_NOTE.md) · [Primary checker](sparse_syndrome_checker.py) · [Second implementation](independent_recheck.py) · [Follow-up checker](followup_checker.py) · [Verification and reproduction](VERIFICATION.md)
+
+## Follow-up results: sampling, a larger domain, and context selection
+
+The [research supplement](FOLLOWUP_RESEARCH_NOTE.md) adds four separately scoped results. It supplements rather than replaces the original article below.
+
+| Result | Precise scope | Bound or conclusion |
+|---|---|---|
+| Larger sparse domain | Ideal independent mixed-weight columns; all even selector weights at most 300; error weight at most 129 | Exceptional-matrix probability < 2^-162 |
+| Transfer through the inspected sampler | Independent uniform 64-bit source words and independent fair weight bits; includes threshold bias and duplicate rejection | Probability-ratio factor at most 137438953472/137438953279; resulting failure bound remains < 2^-162 |
+| Conditional hash-model extension | One ideal random oracle; fixed defaults; finite-counter exceptional runs included | < 2^-162 for a fixed tag; < 2^-98 for the event that any of all 2^64 tags fails |
+| Limit of unrestricted aggregation | Broad algebraic witness domain, not the salt-generator image or full protocol | Distinct two-way aggregate witnesses can have the same syndrome |
+
+The all-tag statement permits adaptive tag selection **within that ideal model**, while keeping all other parameters fixed. It asserts the restricted property separately for each matrix, not injectivity across different tags. **Neither 162 nor 98 is an HFHE security level.** No guarantee for actual SHA-256, a deployed matrix, message confidentiality, or accepted network transactions is established.
+
+The supplement includes full arguments, an [executed exact-arithmetic checker](followup_checker.py), and its [generated results](followup_results.json). The larger domain is not a claimed deployed parameter change. The aggregation example is not a demonstrated exploit. All material remains AI-assisted and not independently peer-reviewed. See [the revision record](CHANGELOG.md).
+
+---
 
 When I examine a cryptographic design, I want to distinguish three things: what the implementation does, what its mathematics establishes, and what remains to be demonstrated.
 
@@ -140,7 +157,7 @@ It therefore does not provide a hardness reduction for HFHE or an estimate of th
 
 The implementation constructs H deterministically using SHA-256 and a sampling procedure, rather than drawing directly from the ideal ensemble. Moving from this theorem to that generator requires a separate argument, or an appropriate check of a particular matrix. [2]
 
-The numerical checker does not perform that check.
+The original numerical checker does not perform that check. The [follow-up supplement](FOLLOWUP_RESEARCH_NOTE.md#3-transfer-through-the-inspected-sampling-rule) now analyzes the sampling logic under independent random words and states separately qualified random-oracle corollaries. Those are not a certification of actual SHA-256 or a concrete matrix.
 
 **A unique witness is not automatically a commitment to the message.**
 
@@ -152,7 +169,7 @@ This note does not establish that relationship. Nor does it infer, solely from t
 
 After XOR aggregation, the selector need not have weight 128, and the combined error may exceed weight 129. The original uniqueness theorem cannot simply be reused indefinitely.
 
-XOR composition remains algebraically correct. Preservation of uniqueness under a particular sequence of operations is a separate question.
+XOR composition remains algebraically correct. Preservation of uniqueness under a particular sequence of operations is a separate question. [Section 5 of the supplement](FOLLOWUP_RESEARCH_NOTE.md#5-why-unrestricted-two-way-aggregation-cannot-inherit-injectivity) gives a deterministic limit in the broad aggregate-witness domain, without claiming a protocol exploit.
 
 The technical supplement also addresses two related limits: the salt input’s domain and why binary XOR cannot, by itself, serve as a nontrivial deterministic additive tag of a value in an odd-characteristic field.
 
@@ -162,7 +179,7 @@ For me, the value of this analysis is not an opportunity to label the entire sys
 
 At the encoding level, there is a concrete conditional result and a reproducible numerical check.
 
-At the implementation level, the next task is to connect the ideal distribution to the actual generator and sampler.
+At the implementation level, the follow-up has analyzed the sampling rule under explicit ideal-randomness assumptions; correspondence to actual SHA-256 and certification of a concrete matrix remain separate tasks.
 
 At the protocol level, the task is to identify which security property uses the witness’s uniqueness, how that relationship is enforced, and what survives subsequent ciphertext operations.
 
@@ -178,7 +195,7 @@ That provides a concrete result about the encoding layer. It is neither a proof 
 
 A useful technical discussion should be able to hold both conclusions at once: recognize a property that has been established within a model, and keep its implications within the boundaries of that model.
 
-*Methodology: AI-assisted analysis of public source code. The derivation has not been independently peer-reviewed, and no claim of scientific priority is made. The accompanying checker verifies numerical inequalities, not Octra’s C++ implementation or a deployed network.*
+*Methodology: AI-assisted analysis of public source code. The derivation has not been independently peer-reviewed, and no claim of scientific priority is made. The accompanying checkers verify numerical inequalities, not Octra’s C++ implementation or a deployed network.*
 
 ---
 
@@ -199,8 +216,9 @@ Use Python 3.9 or newer and run from the repository directory, without Python's 
 ```sh
 python sparse_syndrome_checker.py --output primary_results.local.json
 python independent_recheck.py
+python followup_checker.py --output followup_results.local.json
 ```
 
-The primary run writes `primary_results.local.json`. The second run writes `independent_recheck_results.json` beside its script. Compare with the [published primary results](check_results.json) and [published second-run results](independent_recheck_results.json). Only the second report's diagnostic approximations use floating point; all pass/fail inequalities use exact arithmetic.
+The primary and follow-up commands write separate local reports. The second command writes `independent_recheck_results.json` beside its script. Compare with the [published primary results](check_results.json), [published second-run results](independent_recheck_results.json), and [published follow-up results](followup_results.json). All pass/fail inequalities use exact arithmetic. Diagnostic approximations in reports are not certificate comparisons; last digits may vary. The artificial aggregation example is a sanity check, not an execution of the Octra generator.
 
-**Revision note:** the derivation and reproducibility material have been expanded. The theorem, parameter domain, and `2^-162` bound are unchanged. No actual matrix, production encryption, or inversion-hardness claim has been added.
+**Revision note:** the original theorem, original two checkers, and their baseline results are unchanged. The separately scoped follow-up adds the enlarged domain, sampler transfer, conditional fixed-context and all-tag random-oracle results, and an aggregation limitation. No actual-matrix certification, production-encryption claim, or inversion-hardness claim has been added.

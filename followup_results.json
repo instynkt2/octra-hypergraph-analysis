@@ -1,0 +1,130 @@
+{
+  "status": "Public AI-assisted research supplement; not independently peer-reviewed",
+  "ensemble_extension": {
+    "scope": "Ideal independent mixed-weight columns",
+    "even_difference_supports": "2,4,...,600",
+    "number_of_support_sizes": 300,
+    "corollary_domain": "even wt(x) <= 300; wt(e) <= 129",
+    "exact_pair_below_2_minus_163": true,
+    "log2_pair_bound_diagnostic": -163.85548772935726,
+    "groups": [
+      {
+        "lo": 4,
+        "hi": 4,
+        "even_sizes": 1,
+        "r_lower_bound": "7/80",
+        "exact_below_2_minus_200": true,
+        "log2_bound_diagnostic": -233.38025617548556
+      },
+      {
+        "lo": 6,
+        "hi": 16,
+        "even_sizes": 6,
+        "r_lower_bound": "1/8",
+        "exact_below_2_minus_200": true,
+        "log2_bound_diagnostic": -400.0081283287145
+      },
+      {
+        "lo": 18,
+        "hi": 64,
+        "even_sizes": 24,
+        "r_lower_bound": "1/4",
+        "exact_below_2_minus_200": true,
+        "log2_bound_diagnostic": -1284.2253815675504
+      },
+      {
+        "lo": 66,
+        "hi": 256,
+        "even_sizes": 96,
+        "r_lower_bound": "7/16",
+        "exact_below_2_minus_200": true,
+        "log2_bound_diagnostic": -2268.922301812403
+      },
+      {
+        "lo": 258,
+        "hi": 512,
+        "even_sizes": 128,
+        "r_lower_bound": "511/1024",
+        "exact_below_2_minus_200": true,
+        "log2_bound_diagnostic": -1093.8038111238566
+      },
+      {
+        "lo": 514,
+        "hi": 600,
+        "even_sizes": 44,
+        "r_lower_bound": "511/1024",
+        "exact_below_2_minus_200": true,
+        "log2_bound_diagnostic": -303.21871920931153
+      }
+    ],
+    "exact_total_below_2_minus_162": true
+  },
+  "sampler_transfer": {
+    "scope": "Exact sampler logic under IID words; conditional fixed-context ROM corollary",
+    "word_bits": 64,
+    "row_domain": 8192,
+    "maximum_total_unique_picks": 3162112,
+    "p_zero": "2251799813685248/18446744073709543425",
+    "p_other": "2251799813685247/18446744073709543425",
+    "one_draw_total_variation": "8191/151115727451828579737600",
+    "per_unique_pick_density_ratio_upper": "2251799813685248/2251799813685247",
+    "whole_matrix_factor_rational_upper": "137438953472/137438953279",
+    "factor_minus_one_diagnostic": 1.4042598215093468e-09,
+    "exact_factor_below_one_plus_2_minus_29": true,
+    "exact_transferred_bound_below_2_minus_162": true,
+    "raw_word_cap_per_column_for_coupling": 1024,
+    "slow_matrix_probability_upper": "2^-3122",
+    "exact_fixed_context_ROM_bound_below_2_minus_162": true,
+    "actual_sha256_guarantee": false,
+    "scope_of_this_result": "One context fixed independently of the oracle; see context_family_union_bound for all tags"
+  },
+  "context_family_union_bound": {
+    "scope": "One shared ideal random oracle; fixed defaults; all uint64 canon_tag values",
+    "tag_count": "18446744073709551616",
+    "single_context_bound_below_2_minus_162": true,
+    "all_tags_bound_below_2_minus_98": true,
+    "event": "Some tag fails the extended sparse-distance condition or its modeled generation does not finish",
+    "probability_over": "The sampled ideal oracle, not tags, encryptions, or actual SHA-256",
+    "adaptive_tag_selection_covered_in_this_model": true,
+    "arbitrary_parameter_selection_covered": false,
+    "cross_tag_syndrome_injectivity_claimed": false,
+    "tags_or_matrices_enumerated": false,
+    "actual_sha256_guarantee": false
+  },
+  "toy_sampler_checks": {
+    "scope": "Sanity checks only; not proofs for all word sizes",
+    "threshold_cases_enumerated": 38,
+    "ordered_distinct_sequences_enumerated": 2040,
+    "all_checks_passed": true
+  },
+  "aggregation_example": {
+    "scope": "Broad algebraic witness domain only; no salt preimages or accepted transactions",
+    "all_base_selector_weights": [
+      128,
+      128,
+      128,
+      128
+    ],
+    "all_base_error_weights": [
+      128,
+      129,
+      128,
+      128
+    ],
+    "two_column_difference_weight": 371,
+    "left_aggregate_selector_weight": 0,
+    "right_aggregate_selector_weight": 2,
+    "left_aggregate_error_weight": 185,
+    "right_aggregate_error_weight": 186,
+    "aggregate_syndromes_equal": true,
+    "aggregate_witnesses_distinct": true,
+    "an_attack_on_deployed_HFHE": false
+  },
+  "not_established": [
+    "Actual-SHA-256 behavior or a particular generated matrix",
+    "Efficient decoding or syndrome-inversion hardness",
+    "Semantic binding to ciphertext values",
+    "Full HFHE security or protocol exploit",
+    "Scientific novelty or independent expert review"
+  ]
+}
