@@ -1,0 +1,79 @@
+{
+  "scope": "Ideal independent-column model; NOT deployed HFHE security",
+  "published_checker_git_blob_sha": "d748f8d95d0dec42700cd3344e791eb9340f4578",
+  "published_file_identity_verified": true,
+  "method": "Exact hypergeometric recurrence and rational exponential-moment bound, separately implemented",
+  "all_128_even_support_sizes_covered": true,
+  "binomial_masses": [
+    {
+      "weight": 192,
+      "mass_approx": 0.02910259985567889,
+      "density_ratio_approx": 17.18059563336343
+    },
+    {
+      "weight": 193,
+      "mass_approx": 0.029029018832942274,
+      "density_ratio_approx": 17.224143980801635
+    }
+  ],
+  "individual_pair_tails": [
+    {
+      "a": 192,
+      "c": 192,
+      "log2_probability": -189.08032816230366
+    },
+    {
+      "a": 192,
+      "c": 193,
+      "log2_probability": -193.44355932548774
+    },
+    {
+      "a": 193,
+      "c": 192,
+      "log2_probability": -193.44355932548774
+    },
+    {
+      "a": 193,
+      "c": 193,
+      "log2_probability": -192.88540125361658
+    }
+  ],
+  "log2_all_pairs_upper_bound_approx": -163.85548772935726,
+  "groups": [
+    {
+      "lo": 4,
+      "hi": 4,
+      "r_lower_bound": "7/80",
+      "z": "1/2",
+      "log2_group_bound_approx": -202.6195368423505,
+      "exact_below_2_minus_200": true
+    },
+    {
+      "lo": 6,
+      "hi": 16,
+      "r_lower_bound": "1/8",
+      "z": "1/2",
+      "log2_group_bound_approx": -258.2941511656427,
+      "exact_below_2_minus_200": true
+    },
+    {
+      "lo": 18,
+      "hi": 64,
+      "r_lower_bound": "1/4",
+      "z": "1/2",
+      "log2_group_bound_approx": -453.446171186788,
+      "exact_below_2_minus_200": true
+    },
+    {
+      "lo": 66,
+      "hi": 256,
+      "r_lower_bound": "7/16",
+      "z": "1/8",
+      "log2_group_bound_approx": -1964.812773423313,
+      "exact_below_2_minus_200": true
+    }
+  ],
+  "log2_total_upper_bound_approx": -163.85548772936454,
+  "exact_total_bound_below_2_minus_162": true,
+  "not_independent_peer_review": true
+}

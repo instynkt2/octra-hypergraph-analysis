@@ -2,6 +2,10 @@
 
 *A code-grounded research note on a conditional uniqueness result—and what it does not establish.*
 
+**Scope:** an ideal independent-column matrix ensemble at defaults from a pinned public source snapshot. The probability is over the choice of **H**, not over individual encryptions or witnesses. This is not a deployed-matrix certification, a hardness result, or an HFHE security proof.
+
+[Full derivation](technical_note.md) · [Primary checker](sparse_syndrome_checker.py) · [Second implementation](independent_recheck.py) · [Verification and reproduction](VERIFICATION.md)
+
 When I examine a cryptographic design, I want to distinguish three things: what the implementation does, what its mathematics establishes, and what remains to be demonstrated.
 
 That is the approach I took to one component of Octra’s public PVAC implementation: its sparse, hypergraph-based syndrome construction.
@@ -10,7 +14,7 @@ The question is precise:
 
 **Can two different admissible internal representations produce the same syndrome?**
 
-An AI-assisted analysis yields a positive result under an explicitly defined ideal model. At the parameters examined, the probability of selecting a matrix that admits such an ambiguity is less than 2⁻¹⁶².
+An AI-assisted analysis yields a positive result under an explicitly defined ideal model. Over the choice of H from that model, the probability of selecting a matrix that admits any such ambiguity is less than 2⁻¹⁶². The parameters are defaults from the pinned source snapshot, not independently verified deployment settings.
 
 That is a statement about a restricted encoding—not “162-bit security for Octra,” and not a proof of HFHE confidentiality.
 
@@ -100,7 +104,9 @@ Combining the bounds gives:
 
 **Pr[H fails the condition] < 2⁻¹⁶³ + 4 × 2⁻²⁰⁰ < 2⁻¹⁶².**
 
-The accompanying Python checker verifies the numerical inequalities using exact integers and rational arithmetic. Those checks passed.
+The accompanying Python checker verifies the numerical inequalities using exact integers and rational arithmetic. Those checks passed. The [technical note, Section 4.3](technical_note.md#43-chernoff-bound-and-exact-certification) spells out the four ranges, counting factors, and endpoint inequalities.
+
+A [second implementation](independent_recheck.py) recomputes the pair probabilities by a hypergeometric recurrence and uses fixed rational exponential-moment bounds for larger subsets. It checks every even support size and also verifies the total bound. Both implementations were developed in the same AI-assisted work; this is a computational cross-check, **not independent peer review**. See [verification details](VERIFICATION.md).
 
 This is not a Monte Carlo experiment. No conclusion is extrapolated from a sample of randomly generated matrices. The program checks the finite inequalities used in the argument.
 
@@ -180,10 +186,21 @@ A useful technical discussion should be able to hold both conclusions at once: r
 
 All paths below are pinned to commit `9e7ee19`:
 
-```text
-[1] https://raw.githubusercontent.com/octra-labs/lite_node/9e7ee19/pvac/include/pvac/core/types.hpp
-[2] https://raw.githubusercontent.com/octra-labs/lite_node/9e7ee19/pvac/include/pvac/crypto/matrix.hpp
-[3] https://raw.githubusercontent.com/octra-labs/lite_node/9e7ee19/pvac/include/pvac/ops/encrypt.hpp
+[1] [Parameter defaults — core/types.hpp](https://github.com/octra-labs/lite_node/blob/9e7ee19/pvac/include/pvac/core/types.hpp)
+
+[2] [Matrix and syndrome construction — crypto/matrix.hpp](https://github.com/octra-labs/lite_node/blob/9e7ee19/pvac/include/pvac/crypto/matrix.hpp)
+
+[3] [Encryption and compaction — ops/encrypt.hpp](https://github.com/octra-labs/lite_node/blob/9e7ee19/pvac/include/pvac/ops/encrypt.hpp)
+
+## Reproduce the numerical checks
+
+Use Python 3.9 or newer and run from the repository directory, without Python's `-O`/`-OO` flags or `PYTHONOPTIMIZE`:
+
+```sh
+python sparse_syndrome_checker.py --output primary_results.local.json
+python independent_recheck.py
 ```
 
-Supporting files: `technical_note.md`, `sparse_syndrome_checker.py`, and `check_results.json`.
+The primary run writes `primary_results.local.json`. The second run writes `independent_recheck_results.json` beside its script. Compare with the [published primary results](check_results.json) and [published second-run results](independent_recheck_results.json). Only the second report's diagnostic approximations use floating point; all pass/fail inequalities use exact arithmetic.
+
+**Revision note:** the derivation and reproducibility material have been expanded. The theorem, parameter domain, and `2^-162` bound are unchanged. No actual matrix, production encryption, or inversion-hardness claim has been added.
