@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "scope": "Ideal independent-column ensemble; not actual SHA-256 outputs or full HFHE",
+  "parameters": {
+    "rows": 8192,
+    "columns": 16384,
+    "column_weights": [192, 193],
+    "selector_weight": 128,
+    "maximum_error_weight": 129
+  },
+  "method": "Exact integer/Fraction arithmetic; hypergeometric tail, measure domination, Chernoff and union bounds",
+  "dominance_checks": {
+    "binomial_mass_192_greater_than_1_over_36": true,
+    "binomial_mass_193_greater_than_1_over_36": true
+  },
+  "s_2_contribution_below_2_to_minus_163": true,
+  "groups": [
+    {
+      "min_s": 4,
+      "max_s": 4,
+      "number_of_even_s": 1,
+      "r_lower_bound": "7/80",
+      "r_lower_bound_check_passed": true,
+      "group_contribution_below_2_to_minus_200": true
+    },
+    {
+      "min_s": 6,
+      "max_s": 16,
+      "number_of_even_s": 6,
+      "r_lower_bound": "1/8",
+      "r_lower_bound_check_passed": true,
+      "group_contribution_below_2_to_minus_200": true
+    },
+    {
+      "min_s": 18,
+      "max_s": 64,
+      "number_of_even_s": 24,
+      "r_lower_bound": "1/4",
+      "r_lower_bound_check_passed": true,
+      "group_contribution_below_2_to_minus_200": true
+    },
+    {
+      "min_s": 66,
+      "max_s": 256,
+      "number_of_even_s": 96,
+      "r_lower_bound": "7/16",
+      "r_lower_bound_check_passed": true,
+      "group_contribution_below_2_to_minus_200": true
+    }
+  ],
+  "total_bound_below_2_to_minus_162": true,
+  "not_established": [
+    "Security of SHA-256 or the actual matrix generator",
+    "The property for a particular generated matrix",
+    "Hardness of syndrome inversion",
+    "Binding of the syndrome to ciphertext weights or plaintext",
+    "Uniqueness after unrestricted XOR aggregation",
+    "IND-CPA security of the complete HFHE construction"
+  ]
+}
