@@ -1,0 +1,239 @@
+# Algebraic Cross-Check of Octra's Bulletproof-Style R1CS Backend
+
+**Status:** AI-assisted public research note; not independently peer-reviewed.  
+**Source snapshot:** `octra-labs/lite_node` at `909fa6ceead557410f756e11a7ce3b3a75a3b222`.  
+**Scope:** algebraic consistency of the published prover/verifier equations. This is **not** an argument-of-knowledge proof, a Fiat–Shamir security proof, an audit of the concrete scalar/group implementation, or an HFHE security certification.
+
+## 1. Why this is the next proof obligation
+
+The preceding notes establish properties of Octra's sparse syndrome representation and a conditional amount-binding relation. Those results do not by themselves establish that the proof backend faithfully proves the intended R1CS relation.
+
+This note therefore isolates a narrower question:
+
+> Assuming correct prime-field scalar arithmetic, correct prime-order group arithmetic, and nonzero challenges whenever an inverse is taken, do the equations implemented by the published R1CS prover and verifier fit together algebraically?
+
+For the reviewed snapshot, the answer is positive for the identities checked below.
+
+The result is deliberately modular. Concrete arithmetic correctness, group implementation correctness, transcript security and knowledge soundness remain separate obligations.
+
+## 2. Source components
+
+The checked equations come from:
+
+- `pvac/include/pvac/crypto/bulletproofs/r1cs_prover.hpp`;
+- `pvac/include/pvac/crypto/bulletproofs/r1cs_verifier.hpp`;
+- `pvac/include/pvac/crypto/bulletproofs/inner_product.hpp`;
+- `pvac/include/pvac/crypto/bulletproofs/transcript.hpp`;
+- `pvac/include/pvac/crypto/bulletproofs/generators.hpp`.
+
+At the pinned snapshot the relevant Git blobs are:
+
+```text
+r1cs_prover.hpp    bb42034da6feee703170d1404a226e2d3f9caf5b
+r1cs_verifier.hpp  73a2191e50cf9eba0f03912e48d474d52a56a777
+inner_product.hpp  89ec108eaa3e1f1ddcdc7ec3f3bd5f6d86872b4e
+transcript.hpp     753bd6f8c7cfacc98cec013bd5ecc1ea7dd8b794
+generators.hpp     342a9682f0c1d299ae49edaade020644470977e6
+```
+
+The upstream commit immediately preceding the pinned snapshot is `9e7ee19af38ba020497566ac73c268f42b20b9a4`; these proof-backend blobs are unchanged across that one-commit transition.
+
+## 3. The omitted `t_2` coefficient
+
+Let the multiplication-gate witness vectors be `a_L`, `a_R`, `a_O`, with
+
+```math
+a_O=a_L\circ a_R.
+```
+
+Let an aggregated linear constraint have coefficient vectors `w_L,w_R,w_O,w_V` and constant `w_c`. For a satisfying witness,
+
+```math
+\langle w_L,a_L\rangle+\langle w_R,a_R\rangle+
+\langle w_O,a_O\rangle+\langle w_V,v\rangle+w_c=0.
+```
+
+The prover defines
+
+```math
+l_1=a_L+y^{-1}\circ w_R,
+\qquad l_2=a_O,
+```
+
+```math
+r_0=w_O-y,
+\qquad r_1=y\circ a_R+w_L,
+```
+
+where powers of `y` are understood coordinatewise. The coefficient of `x^2` in the inner-product polynomial is
+
+```math
+t_2=\langle l_1,r_1\rangle+\langle l_2,r_0\rangle.
+```
+
+Expanding and using `a_O=a_L\circ a_R` cancels the two `y`-weighted gate-product terms, leaving
+
+```math
+t_2=
+\langle w_L,a_L\rangle+
+\langle w_R,a_R\rangle+
+\langle w_O,a_O\rangle+
+\delta,
+```
+
+with
+
+```math
+\delta=\langle y^{-1}\circ w_R,w_L\rangle.
+```
+
+Applying the aggregated constraint gives
+
+```math
+t_2=\delta-w_c-\langle w_V,v\rangle.
+```
+
+This is exactly the coefficient that the verifier reconstructs from the public commitments instead of receiving a separate `T_2` commitment. The sign of the commitment blinding term also matches the prover's `tau_x` formula.
+
+This identity is checked symbolically by `backend_identity_check.py` and independently over the scalar field by `backend_algebra_checker.py`.
+
+## 4. The verifier's `P` commitment
+
+The prover evaluates
+
+```math
+l(x)=x l_1+x^2l_2+x^3s_L,
+```
+
+```math
+r(x)=r_0+xr_1+x^3s_R.
+```
+
+The inner-product proof is made against `G_i` and the rescaled basis
+
+```math
+H'_i=y_i^{-1}H_i.
+```
+
+Writing the commitment to `l(x),r(x)` back in the original `G,H` basis gives the following coefficients:
+
+```text
+G_i : x a_L[i] + x y_i^-1 w_R[i] + x^2 a_O[i] + x^3 s_L[i]
+
+H_i : y_i^-1 w_O[i] - 1
+      + x a_R[i] + x y_i^-1 w_L[i] + x^3 s_R[i]
+```
+
+Those are the coefficients assembled by `r1cs_verify`. The blinding contributions from `A_I`, `A_O` and `S` cancel against
+
+```math
+e_{blind}=x\alpha+x^2\beta+x^3\rho.
+```
+
+Finally, the verifier adds `t_x Q`, where `Q=wB`, matching the inner-product relation.
+
+Thus, under the abstract arithmetic assumptions, the verifier's `P` is algebraically the commitment expected by the inner-product argument.
+
+## 5. Inner-product folding identity
+
+The inner-product prover recursively folds
+
+```math
+a' = u a_L + u^{-1}a_R,
+\qquad
+b' = u^{-1}b_L + u b_R,
+```
+
+and
+
+```math
+G' = u^{-1}G_L+uG_R,
+\qquad
+H' = uH_L+u^{-1}H_R.
+```
+
+For each round it publishes cross terms `L` and `R`. Rearranging the fold gives the verifier identity
+
+```math
+P=
+a\sum_i s_iG_i+
+ b\sum_i s_i^{-1}H_i+
+ abQ-
+\sum_k u_k^2L_k-
+\sum_k u_k^{-2}R_k,
+```
+
+where the `s_i` are exactly the coefficients generated by `ipp_verification_scalars`.
+
+The independent checker models every original `G_i`, `H_i` and `Q` as a separate basis vector over the Ristretto scalar field. It constructs the prover folds and then reconstructs the original commitment using the verifier formula. The equality passed for sizes 1, 2, 4, 8, 16 and 32 across 352 deterministic randomized fixtures.
+
+This is an algebraic cross-check, not evidence that the concrete group implementation is correct.
+
+## 6. Reproducible checks
+
+Run with Python 3.9 or newer:
+
+```sh
+python backend_identity_check.py --output backend_identity_results.local.json
+python backend_algebra_checker.py --output backend_algebra_results.local.json
+```
+
+The first script checks the central identities symbolically. The second uses an independent finite-field model with modulus
+
+```text
+7237005577332262213973186563042994240857116359379907606001950938285454250989
+```
+
+and reports:
+
+- 352/352 inner-product reconstruction fixtures passed;
+- 512/512 R1CS polynomial reconstruction fixtures passed;
+- the omitted-`t_2` identity passed.
+
+Randomized fixtures use a fixed deterministic seed for reproducibility. Passing fixtures are not a substitute for a proof; the symbolic derivations above are the substantive argument.
+
+## 7. What this advances
+
+The result closes one code-to-mathematics question:
+
+> **At the level of abstract scalar and group algebra, the published prover and verifier equations are mutually consistent with the intended multiplication-gate R1CS relation and recursive inner-product folding.**
+
+In particular, the absence of an explicit `T_2` commitment is explained by the aggregated constraint identity rather than being an unexplained omission.
+
+This strengthens the pathway from the V7 amount relation to the proof backend, but it does not complete it.
+
+## 8. Remaining security boundary
+
+The following remain separate obligations:
+
+1. **Concrete scalar arithmetic.** The C++ scalar operations must implement arithmetic modulo the intended Ristretto scalar modulus for every accepted input.
+2. **Concrete group arithmetic.** Ristretto encoding, addition, scalar multiplication and multi-scalar multiplication must implement the intended prime-order group operations.
+3. **Generator assumptions.** The commitment and vector generators must have the independence/discrete-log properties required by the proof argument.
+4. **Transcript / Fiat–Shamir analysis.** Challenge derivation must be modeled explicitly. Inverses additionally require nonzero challenges; under an ideal uniform scalar challenge the zero event is negligible, but that is a model statement.
+5. **Knowledge soundness.** Algebraic consistency is not an argument of knowledge. A reduction for the exact proof variant and transcript remains to be supplied or connected rigorously to an existing theorem.
+6. **Serialization and statement binding.** The accepted byte representation, public commitments, proof version, ciphertext hash and transaction context must correspond to the statement analyzed by the mathematics.
+7. **HFHE confidentiality.** None of the above proves confidentiality, syndrome-inversion hardness, or the necessity of the hypergraph layer.
+
+Implementation-level review artifacts are intentionally kept separate from this public algebra note. A public proof document should not silently convert an abstract-field theorem into a claim that every concrete arithmetic routine has already been certified.
+
+## 9. Next target
+
+The next useful theorem is an **end-to-end conditional acceptance statement** for the canonical V7 range-bound path:
+
+```text
+accepted serialized proof
+  -> accepted R1CS statement
+  -> extracted/fixed committed key and amount (under explicit proof assumptions)
+  -> satisfying V7 arithmetic relation
+  -> amount equals grouped decryption value.
+```
+
+The remaining work is to make every arrow explicit and to label precisely which arrows are algebraic results, implementation checks, or cryptographic assumptions.
+
+## Pinned source references
+
+- https://github.com/octra-labs/lite_node/blob/909fa6ceead557410f756e11a7ce3b3a75a3b222/pvac/include/pvac/crypto/bulletproofs/r1cs_prover.hpp
+- https://github.com/octra-labs/lite_node/blob/909fa6ceead557410f756e11a7ce3b3a75a3b222/pvac/include/pvac/crypto/bulletproofs/r1cs_verifier.hpp
+- https://github.com/octra-labs/lite_node/blob/909fa6ceead557410f756e11a7ce3b3a75a3b222/pvac/include/pvac/crypto/bulletproofs/inner_product.hpp
+- https://github.com/octra-labs/lite_node/blob/909fa6ceead557410f756e11a7ce3b3a75a3b222/pvac/include/pvac/crypto/bulletproofs/transcript.hpp
+- https://github.com/octra-labs/lite_node/blob/909fa6ceead557410f756e11a7ce3b3a75a3b222/pvac/include/pvac/crypto/bulletproofs/generators.hpp
