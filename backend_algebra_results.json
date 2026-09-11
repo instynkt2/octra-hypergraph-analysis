@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "source_commit": "909fa6ceead557410f756e11a7ce3b3a75a3b222",
+  "scalar_modulus": "7237005577332262213973186563042994240857116359379907606001950938285454250989",
+  "scope": "Independent scalar-field model of prover/verifier algebra; no Octra C++ arithmetic or group code executed",
+  "ipp_reconstruction": {
+    "1": {"trials": 64, "passed": 64},
+    "2": {"trials": 64, "passed": 64},
+    "4": {"trials": 64, "passed": 64},
+    "8": {"trials": 64, "passed": 64},
+    "16": {"trials": 64, "passed": 64},
+    "32": {"trials": 32, "passed": 32}
+  },
+  "r1cs_polynomial_identity": {"trials": 512, "passed": 512},
+  "checks": {
+    "ipp_fold_reconstruction_passed": true,
+    "omitted_t2_is_exactly_constraint_term_plus_delta": true,
+    "r1cs_t_polynomial_reconstruction_passed": true
+  },
+  "security_boundary": [
+    "Correct scalar arithmetic is assumed; concrete implementation arithmetic is outside this public algebraic check.",
+    "Correct prime-order Ristretto group operations are assumed.",
+    "Nonzero Fiat-Shamir challenges are assumed where inversion is required.",
+    "No argument-of-knowledge or random-oracle theorem is proved here.",
+    "No claim about HFHE confidentiality or syndrome hardness is made."
+  ]
+}
