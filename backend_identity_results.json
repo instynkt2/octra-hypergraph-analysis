@@ -1,0 +1,41 @@
+{
+  "G_coefficients": {
+    "x*aL": 1,
+    "x*yi*wR": 1,
+    "x2*aO": 1,
+    "x3*sL": 1
+  },
+  "H_coefficients": {
+    "1": -1,
+    "x*aR": 1,
+    "x*yi*wL": 1,
+    "x3*sR": 1,
+    "yi*wO": 1
+  },
+  "checks": {
+    "A_commitment_blindings_cancel": true,
+    "t2_constraint_identity": true,
+    "verifier_P_matches_l_r_commitment_coefficients": true
+  },
+  "limitations": [
+    "Does not prove Fiat-Shamir security or argument of knowledge",
+    "Does not validate generator independence/discrete-log assumptions",
+    "Does not validate the concrete scalar arithmetic implementation",
+    "Does not execute the Octra prover/verifier",
+    "Does not establish HFHE confidentiality"
+  ],
+  "scope": "Symbolic consistency of published R1CS prover/verifier equations; assumes correct scalar/group arithmetic and satisfied witness",
+  "source_commit": "909fa6ceead557410f756e11a7ce3b3a75a3b222",
+  "t2_expected": {
+    "aL*wL": 1,
+    "aO*wO": 1,
+    "aR*wR": 1,
+    "wL*wR*yi": 1
+  },
+  "t2_normalized": {
+    "aL*wL": 1,
+    "aO*wO": 1,
+    "aR*wR": 1,
+    "wL*wR*yi": 1
+  }
+}
